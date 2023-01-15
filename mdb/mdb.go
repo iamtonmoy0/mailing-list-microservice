@@ -35,3 +35,18 @@ func TryCreate(db *sql.DB) {
 		}
 	}
 }
+
+func emailEntryFromRow(row *sql.Rows) (*EmailEntry, error) {
+	var id int64
+	var email string
+	var confirmedAt int64
+	var optOut bool
+
+	err := row.Scan(&id, &email, &confirmedAt, &optOut)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	t := time.Unix(confirmedAt, 0)
+	return &EmailEntry{id: id, Email: email, ConfirmAt: &t, OptOut: optOut}, nil
+}
