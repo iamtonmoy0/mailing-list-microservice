@@ -63,3 +63,40 @@ func CreateEmail(db *sql.DB, email string) error {
 	}
 	return nil
 }
+func GetEmail(db *sql.DB, email string) (*EmailEntry, error) {
+	rows, err := db.Query(`
+SELECT id,email,confirmed_at,opt_out
+FROM emails
+WHERE email =?
+
+
+`, email)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		return emailEntryFromRow(rows)
+	}
+	return nil, nil
+}
+
+func UpdateEmail(db *sql.DB, entry EmailEntry) error {
+	t := entry.ConfirmAt.Unix()
+	_, err := db.Exec(`
+	
+	emails(email,confirmed_at,opt_out)
+	VALUES(?,?,?)
+	ON CONFLICT(email)DO UPDATE SET
+	confirmed_at=?
+	opt_out=?
+	
+	
+	`, entry.Email, t, entry.OptOut, t, entry.OptOut)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
