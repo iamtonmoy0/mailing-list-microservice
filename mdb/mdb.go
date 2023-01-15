@@ -120,4 +120,23 @@ type GetEmailBatchQueryParams struct {
 	Count int
 }
 
-func GetEmailBatch()
+func GetEmailBatch(db *sql.DB, params GetEmailBatchQueryParams) ([]EmailEntry, error) {
+
+	var empty []EmailEntry
+	rows, err := db.Query(`
+SELECT id,email,confirmed_at,opt_out
+FROM emails 
+WHERE opt_out:false
+ORDER BY id ASC
+LIMIT ? OFFSET?	
+	
+	
+	
+	`, params.Count, (params.Page-1)*params.Count)
+
+	if err != nil {
+		log.Panicln(err)
+		return empty, err
+	}
+	defer rows.Close()
+}
