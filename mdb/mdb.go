@@ -139,4 +139,16 @@ LIMIT ? OFFSET?
 		return empty, err
 	}
 	defer rows.Close()
+
+	emails := make([]EmailEntry, 0, params.Count)
+
+	for rows.Next() {
+		email, err := emailEntryFromRow(rows)
+		if err != nil {
+			return nil, err
+		}
+		emails = append(emails, *email)
+
+	}
+	return emails, nil
 }
