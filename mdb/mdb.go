@@ -48,5 +48,18 @@ func emailEntryFromRow(row *sql.Rows) (*EmailEntry, error) {
 		return nil, err
 	}
 	t := time.Unix(confirmedAt, 0)
-	return &EmailEntry{id: id, Email: email, ConfirmAt: &t, OptOut: optOut}, nil
+	return &EmailEntry{Id: id, Email: email, ConfirmAt: &t, OptOut: optOut}, nil
+}
+
+func CreateEmail(db *sql.DB, email string) error {
+	_, err := db.Exec(`
+	emails(email,confirmed_at,opt_out)
+	VALUES(?,0,false)
+	
+	`, email)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
 }
