@@ -27,9 +27,11 @@ func TryCreate(db *sql.DB) {
 	if err != nil {
 		if sqlError, ok := err.(sqlite3.Error); ok {
 			//code 1 == "table already exist"
-			if sqlError.code != 1 {
+			if sqlError.Code != 1 {
 				log.Fatal(sqlError)
 			}
-		}els
+		} else {
+			log.Fatal(err)
+		}
 	}
 }
