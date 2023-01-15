@@ -100,3 +100,24 @@ func UpdateEmail(db *sql.DB, entry EmailEntry) error {
 	}
 	return nil
 }
+func DeleteEmail(db *sql.DB, email string) error {
+	_, err := db.Exec(`
+	UPDATE emails
+	SET opt-out=true
+	WHERE email=?
+	
+	
+	`, email)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
+type GetEmailBatchQueryParams struct {
+	Page  int
+	Count int
+}
+
+func GetEmailBatch()
