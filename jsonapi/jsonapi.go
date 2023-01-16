@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"io"
 	"log"
 	"mailinglist/mdb"
@@ -120,6 +121,23 @@ func DeleteEmail(db *sql.DB) http.Handler {
 		})
 	})
 }
+func GetEmailBatch(db *sql.DB) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if req.Method != "GET" {
+			return
+		}
+		queryOptions := mdb.GetEmailBatchQueryParams{}
+		fromJson(req.Body, &queryOptions)
+		if queryOptions.Count <= 0 || queryOptions.Page <= 0 {
+			returnErr(w, errors.New("page  and Count fields are required and mus be >0"), 400)
+			return
+		}
+		returnJson(w, func() (interface{}, error) {
+			log.Printf("JSON GetEmailBatch:%v\n", queryOptions)
+			return mdb.GetEmailBatch(db, queryOptions)
+		})
+	})
+}
 
 func Serve(db *sql.DB, bind string) {
 	http.Handle("/email/create", CreateEmail(db))
@@ -127,4 +145,8 @@ func Serve(db *sql.DB, bind string) {
 	http.Handle("/email/get_batch", GetEmailBatch(db))
 	http.Handle("/email/update", UpdateEmail(db))
 	http.Handle("/email/delete", DeleteEmail(db))
+	err := http.ListenAndServe(bind, nil)
+	if err != nil {
+		log.Fatalf("json server error: %v", err)
+	}
 }
