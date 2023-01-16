@@ -60,17 +60,67 @@ func CreateEmail(db *sql.DB) http.Handler {
 		if req.Method != "POST" {
 			return
 		}
-		email := mdb.EmailEntry{}
+		entry := mdb.EmailEntry{}
 		fromJson(req.Body, &entry)
 		if err := mdb.CreateEmail(db, entry.Email); err != nil {
 			returnErr(w, err, 400)
 		}
 		returnJson(w, func() (interface{}, error) {
-			log.Printf("JSON CreateEmail: %v\n", email.Email)
+			log.Printf("JSON CreateEmail: %v\n", entry.Email)
 			return mdb.GetEmail(db, entry.Email)
 		})
 	})
 }
+
+func GetEmail(db *sql.DB) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if req.Method != "GET" {
+			return
+		}
+		entry := mdb.EmailEntry{}
+		fromJson(req.Body, &entry)
+
+		returnJson(w, func() (interface{}, error) {
+			log.Printf("JSON GetEmail: %v\n", entry.Email)
+			return mdb.GetEmail(db, entry.Email)
+		})
+	})
+}
+
+func UpdateEmail(db *sql.DB) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if req.Method != "PUT" {
+			return
+		}
+		entry := mdb.EmailEntry{}
+		fromJson(req.Body, &entry)
+		if err := mdb.UpdateEmail(db, entry.Email); err != nil {
+			returnErr(w, err, 400)
+		}
+		returnJson(w, func() (interface{}, error) {
+			log.Printf("JSON UpdateEmail: %v\n", entry.Email)
+			return mdb.GetEmail(db, entry.Email)
+		})
+	})
+}
+
+func DeleteEmail(db *sql.DB) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if req.Method != "POST" {
+			return
+		}
+		entry := mdb.EmailEntry{}
+		fromJson(req.Body, &entry)
+		if err := mdb.DeleteEmail(db, entry.Email); err != nil {
+			returnErr(w, err, 400)
+		}
+		returnJson(w, func() (interface{}, error) {
+			log.Printf("JSON DeleteEmail: %v\n", entry.Email)
+			return mdb.GetEmail(db, entry.Email)
+		})
+	})
+}
+
 func Serve(db *sql.DB, bind string) {
 	http.Handle("/email/create", CreateEmail(db))
 	http.Handle("/email/get", GetEmail(db))
