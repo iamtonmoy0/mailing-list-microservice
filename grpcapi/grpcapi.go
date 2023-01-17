@@ -23,5 +23,10 @@ func pbEntryToMdbEntry(pbEntry *pb.EmailEntry) mdb.EmailEntry {
 }
 
 func mdbEntryToPbEntry(mdbEntry *mdb.EmailEntry) pb.EmailEntry {
-
+	return pb.EmailEntry{
+		Id:          mdbEntry.Id,
+		Email:       mdbEntry.Email,
+		ConfirmedAt: mdbEntry.ConfirmAt.Unix(),
+		OptOut:      mdbEntry.OptOut,
+	}
 }
