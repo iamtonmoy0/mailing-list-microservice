@@ -36,7 +36,7 @@ func returnJson[T any](w http.ResponseWriter, withData func() (T, error)) {
 		return
 	}
 
-	dataJson, err := jsonMarshal(&data)
+	dataJson, err := json.Marshal(&data)
 	if err != nil {
 		log.Print(err)
 		w.WriteHeader(500)
@@ -95,7 +95,7 @@ func UpdateEmail(db *sql.DB) http.Handler {
 		}
 		entry := mdb.EmailEntry{}
 		fromJson(req.Body, &entry)
-		if err := mdb.UpdateEmail(db, entry.Email); err != nil {
+		if err := mdb.UpdateEmail(db, entry); err != nil {
 			returnErr(w, err, 400)
 		}
 		returnJson(w, func() (interface{}, error) {
@@ -145,6 +145,7 @@ func Serve(db *sql.DB, bind string) {
 	http.Handle("/email/get_batch", GetEmailBatch(db))
 	http.Handle("/email/update", UpdateEmail(db))
 	http.Handle("/email/delete", DeleteEmail(db))
+	log.Printf("json api server listening on %v\n", bind) //port message
 	err := http.ListenAndServe(bind, nil)
 	if err != nil {
 		log.Fatalf("json server error: %v", err)
