@@ -69,14 +69,39 @@ func (s *MailServer) GetEmailBatch(ctx context.Context, req *pb.GetEmailBatch) (
 		pbEntries = append(pbEntries, &entry)
 
 	}
+	return &pb.GetEmailBatchResponse{EmailEntries: pbEntries}, nil
 }
 func (s *MailServer) CreateEmail(ctx context.Context, req *pb.CreateEmailRequest) (*pb.EmailResponse, error) {
 
-	log.Printf("grpc GetEmail:%v\n", req)
+	log.Printf("grpc CreateEmail:%v\n", req)
 
 	err := mdb.CreateEmail(s.db, req.EmailAddr)
 	if err != nil {
 		return &pb.EmailResponse{}, err
 	}
+
+	return emailResponse(s.db, req.EmailAddr)
+}
+func (s *MailServer) UpdateEmail(ctx context.Context, req *pb.UpdateEmailRequest) (*pb.EmailResponse, error) {
+
+	log.Printf("grpc UpdateEmail:%v\n", req)
+	entry := pbEntryToMdbEntry(req.EmailEntry)
+
+	err := mdb.UpdateEmail(s.db, req.EmailAddr)
+	if err != nil {
+		return &pb.EmailResponse{}, err
+	}
+
+	return emailResponse(s.db, entry.Email)
+}
+func (s *MailServer) DeleteEmail(ctx context.Context, req *pb.DeleteEmailRequest) (*pb.EmailResponse, error) {
+
+	log.Printf("grpc DeleteEmail:%v\n", req)
+
+	err := mdb.DeleteEmail(s.db, req.EmailAddr)
+	if err != nil {
+		return &pb.EmailResponse{}, err
+	}
+
 	return emailResponse(s.db, req.EmailAddr)
 }
