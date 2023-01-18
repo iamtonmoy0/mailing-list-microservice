@@ -122,5 +122,6 @@ func Serve(db *sql.DB, bind string) {
 	log.Printf("grpc api server listening on %v\n", bind)
 	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatalf("grpc server error: %v\n", err)
+
 	}
 }
